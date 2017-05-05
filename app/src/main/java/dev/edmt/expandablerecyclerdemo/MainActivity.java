@@ -6,14 +6,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.bignerdranch.expandablerecyclerview.Model.ParentObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import dev.edmt.expandablerecyclerdemo.Adapter.MyAdapter;
 import dev.edmt.expandablerecyclerdemo.Models.TitleChild;
@@ -23,7 +25,9 @@ import dev.edmt.expandablerecyclerdemo.Models.TitleParent;
 public class MainActivity extends AppCompatActivity {
 
     RecyclerView recyclerView;
-
+    Button submit;
+    RecyclerView.ViewHolder holder;
+    private String Text;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -36,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        submit = (Button)findViewById(R.id.save);
         recyclerView = (RecyclerView)findViewById(R.id.myRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -44,50 +49,46 @@ public class MainActivity extends AppCompatActivity {
         adapter.setParentAndIconExpandOnClick(true);
 
         recyclerView.setAdapter(adapter);
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                for (int i= 0; i<editTextList.size(); i++){
+                    Toast.makeText(getApplicationContext(), editTextList.get(i).getText().toString(), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     private List<ParentObject> initData() {
         TitleCreator titleCreator = TitleCreator.get(this);
         List<TitleParent> titles = titleCreator.getAll();
         List<ParentObject> parentObject = new ArrayList<>();
-//        LayoutInflater layoutInflater = LayoutInflater.from(this);
-//        View viewTb = layoutInflater.inflate(R.layout.list_child, null);
-//        LinearLayout layout;
-//        layout = new LinearLayout(getApplicationContext());
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
+        View viewTb = layoutInflater.inflate(R.layout.list_child, null);
+        LinearLayout layout;
+        layout = (LinearLayout)viewTb.findViewById(R.id.ln);
+        LinearLayout.LayoutParams mRparams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        List<Object>  childList = new ArrayList<>();
 
-//        titleChildViewHolder.option1.setText(title.getOption1());
-//        titleChildViewHolder.option2.setText(title.getOption2());
-//        LinearLayout.LayoutParams mRparams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-
-        for(TitleParent title:titles)
-        {
-            List<Object> childList = new ArrayList<>();
-//            childList.add(new TitleChild("Add to contacts","Send message"));
-//        final EditText myEditText = new EditText(layoutInflater.getContext());
-//        myEditText.setId(String.valueOf(title.get_id()).hashCode());
-////            myEditText.setText(title.getOption1().toString());
-//        myEditText.setLayoutParams(mRparams);
-//            layout.addView(myEditText);
-
+        for(TitleParent title:titles) {
+            final EditText myEditText = new EditText(this);
+            myEditText.setId(String.valueOf(title.get_id()).hashCode());
             childList.add(new TitleChild(editText(String.valueOf(title.get_id()).hashCode())));
             title.setChildObjectList(childList);
             parentObject.add(title);
+        }
+        for (int j =0; j< parentObject.size(); j++){
+            HashMap<ParentObject, Object> map = new HashMap<ParentObject, Object>();
+            map.put(parentObject.get(j), childList.indexOf(parentObject));
         }
         return parentObject;
 
     }
     private List<EditText> editTextList = new ArrayList<EditText>();
     private EditText editText (int _ID){
-
-        LayoutInflater inflater = LayoutInflater.from(this);
-//        View viewTb = inflater.inflate(R.layout.list_child, null);
-//        LinearLayout ln;
-//        ln = (LinearLayout)viewTb.findViewById(R.id.ln);
         LinearLayout.LayoutParams mRparams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-
-        final EditText myEditText = new EditText(inflater.getContext());
+        final EditText myEditText = new EditText(this);
         myEditText.setId(_ID);
-//        myEditText.setText(title.getOption1().toString());
         myEditText.setLayoutParams(mRparams);
         editTextList.add(myEditText);
         return myEditText;
